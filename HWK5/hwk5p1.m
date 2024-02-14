@@ -7,7 +7,7 @@ function [x] = hwk5p1(x_in, tol, iter)
     % tol: Stopping tolerance
     
     % Use the Trust Region method for the Rosenbrock function
-    [x_star, n_evals] = damped_BFGS(@rosenbrocknfgH, x_in, tol, iter);
+    [x_star, ~, ~] = damped_BFGS(@rosenbrocknfgH, x_in, tol, iter);
     
     x = x_star;
 end

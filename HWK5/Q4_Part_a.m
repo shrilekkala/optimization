@@ -9,7 +9,7 @@ for n = 30:10:200
     x0 = 2 * ones(n, 1);
     
     % Run the damped BFGS algorithm
-    [x_star, ~, ~] = damped_BFGS(@rosenbrocknfgH, x0, tol, max_iter);
+    [x_star, n_func_evals, ~] = damped_BFGS(@rosenbrocknfgH, x0, tol, max_iter);
     
     % Report the results
     fprintf('Number of Function Evaluations: %d\n', n_func_evals);

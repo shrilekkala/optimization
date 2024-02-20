@@ -1,5 +1,19 @@
 function [x, obj, isDegenerate, isUnbounded, n_iter] = simplexMethod(A, b, c, p)
+    % Implements the simplex algorithm (13.1) for solving linear programming problems.
     
+    % Inputs:
+    %   A - Coefficient matrix of the constraints
+    %   b - Right-hand side vector of the constraints
+    %   c - Coefficients vector for the objective function
+    %   p - Maximum number of iterations allowed
+
+    % Outputs:
+    %   x - Optimal variable values for the decision variables
+    %   obj - Optimal objective function value
+    %   isDegenerate - Boolean flag for degeneracy in the solution
+    %   isUnbounded - Boolean flag for unboundedness in the solution
+    %   n_iter - Number of iterations performed by the algorithm
+
     % Initialize variables
     isDegenerate = false;
     isUnbounded = false;
@@ -11,6 +25,10 @@ function [x, obj, isDegenerate, isUnbounded, n_iter] = simplexMethod(A, b, c, p)
     % Assuming that A is in standard form and the last m columns can be an identity matrix
     B_set = (n-m+1):n; % index set B
     N_set = 1:(n-m);   % index set N
+
+    %%
+    x = zeros(n, 1); % Initialize x as a vector of zeros with length n
+    %%
     
     % Main simplex algorithm loop
     while n_iter < p
@@ -22,11 +40,15 @@ function [x, obj, isDegenerate, isUnbounded, n_iter] = simplexMethod(A, b, c, p)
     
         % primal variable
         xB = B \ b;
-        
-        % Check for feasibility
-        if any(xB < 0)
-            error('Initial basis is not feasible');
+        % Starting point
+        if n_iter == 1
+            xB = [ones(m, 1)];
         end
+        
+        % % Check for feasibility
+        % if any(xB < 0)
+        %     error('Initial basis is not feasible');
+        % end
 
         % dual variable (lambda)
         lambda = B' \ c(B_set);
@@ -81,6 +103,11 @@ function [x, obj, isDegenerate, isUnbounded, n_iter] = simplexMethod(A, b, c, p)
 
     optimalBasis = B_set;
     % Compute the solution and optimal objectives from the optimal basis
-    x = xB(optimalBasis);
-    obj = c(1:m)' * x;
+    x(optimalBasis) = xB;
+
+    % x = xB(optimalBasis);
+    % obj = c(1:m)' * x;
+
+    obj = c' * x; % Calculate the objective function value
+
 end

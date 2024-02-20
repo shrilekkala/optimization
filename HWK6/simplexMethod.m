@@ -1,91 +1,86 @@
-function [optimalBasis, isDegenerate, optimalValue, isUnbounded, n_iter] = simplexMethod(A, b, c, p)
+function [x, obj, isDegenerate, isUnbounded, n_iter] = simplexMethod(A, b, c, p)
     
     % Initialize variables
     isDegenerate = false;
     isUnbounded = false;
     n_iter = 0;
-    m = size(A, 1); n = size(A, 2);
+    m = size(A, 1); 
+    n = size(A, 2);
     
-    % Create initial basis B.
-    B_set = m+1:n; % index set B
-    N_set = 1:m;   % index set N
-    
+    % Create initial basis B
+    % Assuming that A is in standard form and the last m columns can be an identity matrix
+    B_set = (n-m+1):n; % index set B
+    N_set = 1:(n-m);   % index set N
     
     % Main simplex algorithm loop
     while n_iter < p
-        B = A(:, B_set); % matrix B
-        N = A(:, N_set); % matrix N
-    
-        xB = B \ b;  % Initial basic feasible solution
-        xB
-
-        B_set
-        N_set
         n_iter = n_iter + 1;
+
+        % construct matrices Basic and Nonbasic matrices
+        B = A(:, B_set);
+        N = A(:, N_set);
+    
+        % primal variable
+        xB = B \ b;
         
+        % Check for feasibility
+        if any(xB < 0)
+            error('Initial basis is not feasible');
+        end
+
+        % dual variable (lambda)
         lambda = B' \ c(B_set);
-        lambda
         
-        % Pricing
+        % pricing (reduced costs for non-basic variables)
         sN = c(N_set) - N' * lambda;
-        c(N_set)
-        A
-        N
-        N' * lambda
-        sN
         
-        % Check for optimality
+        % check for optimality
         if all(sN >= 0)
-            optimalValue = c(B_set)' * xB;
-            optimalBasis = B_set;
-            return;
+            break; % optimal point found
         end
         
         % Determine entering variable (most negative reduced cost)
-        [minReducedCost, enteringIndex] = min(sN);
-        if minReducedCost >= 0  % If no negative reduced cost, solution is optimal
-            break;
-        end
-        
+        [~, enteringIndex] = min(sN);
         q = N_set(enteringIndex);
-        q
         
         % Compute direction vector d
         d = B \ A(:, q);
-        d
         
         % Check for unboundedness
         if all(d <= 0)
             isUnbounded = true;
+            disp("Problem is unbounded")
             break;
         end
         
         % Determine leaving variable
         ratios = xB ./ d;
-        ratios(d <= 0) = inf;  % Ensure non-negativity of d_i
+        ratios(d <= 0) = inf;  % Ensure non-negativity
         [minRatio, leavingIndex] = min(ratios);
+        x_q = minRatio;
         
-        x_q = minRatio
-        p = leavingIndex
-        
-
         % Check for degeneracy
-        if x_q == 1
+        if x_q == inf
             isDegenerate = true;
+            disp("Degenerate case encountered")
             break;
         end
         
         % Update basis and solution
         xB = xB - d * x_q;
-        xN(p) = x_q;
-
-        % Update index sets
-        N_set(enteringIndex) = B_set(p);
-        B_set(p) = q;
+        xB(leavingIndex) = x_q;
         
+        % Update index sets
+        N_set(enteringIndex) = B_set(leavingIndex);
+        B_set(leavingIndex) = q;
     end
     
-    % If the loop exits without returning, the maximum number of iterations was reached
-    optimalValue = c(B_set)' * xB;
+    if n_iter >= p
+        disp("Max number of iterations reached before simplex method finished")
+    end
+
     optimalBasis = B_set;
+    % Compute the solution and optimal objectives from the optimal basis
+    x = xB(optimalBasis);
+    obj = c(1:m)' * x;
 end

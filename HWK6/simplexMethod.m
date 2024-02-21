@@ -22,13 +22,10 @@ function [x, obj, isDegenerate, isUnbounded, n_iter] = simplexMethod(A, b, c, p)
     n = size(A, 2);
     
     % Create initial basis B
-    % Assuming that A is in standard form and the last m columns can be an identity matrix
     B_set = (n-m+1):n; % index set B
     N_set = 1:(n-m);   % index set N
 
-    %%
     x = zeros(n, 1); % Initialize x as a vector of zeros with length n
-    %%
     
     % Main simplex algorithm loop
     while n_iter < p
@@ -44,11 +41,6 @@ function [x, obj, isDegenerate, isUnbounded, n_iter] = simplexMethod(A, b, c, p)
         if n_iter == 1
             xB = [ones(m, 1)];
         end
-        
-        % % Check for feasibility
-        % if any(xB < 0)
-        %     error('Initial basis is not feasible');
-        % end
 
         % dual variable (lambda)
         lambda = B' \ c(B_set);
@@ -79,14 +71,15 @@ function [x, obj, isDegenerate, isUnbounded, n_iter] = simplexMethod(A, b, c, p)
         ratios = xB ./ d;
         ratios(d <= 0) = inf;  % Ensure non-negativity
         [minRatio, leavingIndex] = min(ratios);
-        x_q = minRatio;
-        
-        % Check for degeneracy
-        if x_q == inf
+
+        % Check for exact ties in the minimum ratio test for degeneracy
+        if sum(ratios == minRatio) > 1
             isDegenerate = true;
             disp("Degenerate case encountered")
             break;
         end
+
+        x_q = minRatio;
         
         % Update basis and solution
         xB = xB - d * x_q;
@@ -102,12 +95,9 @@ function [x, obj, isDegenerate, isUnbounded, n_iter] = simplexMethod(A, b, c, p)
     end
 
     optimalBasis = B_set;
+    
     % Compute the solution and optimal objectives from the optimal basis
     x(optimalBasis) = xB;
-
-    % x = xB(optimalBasis);
-    % obj = c(1:m)' * x;
-
-    obj = c' * x; % Calculate the objective function value
+    obj = c' * x; 
 
 end

@@ -24,7 +24,6 @@ function [x, obj] = longStepInteriorPoint(A, b, c, p)
     % Calculate mu and gamma
     mu = (x' * s) / n;
     gamma = min(s ./ mu);
-    % gamma = 1e-3
     
     for k = 1:p
         

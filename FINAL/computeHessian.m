@@ -1,4 +1,4 @@
-function H = computeHessian(Q0, D0, D, a, gamma, lambda, mu, x)
+function H = computeHessian(x, lambda, mu, c, Q0, D0, D, a, gamma)
     % Computes the Hessian of the Augmented Lagrangian at a point x
     m = size(a, 1);
 

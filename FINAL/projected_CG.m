@@ -1,5 +1,5 @@
 function x_cg = projected_CG(x_c, l, u, G, c)
-    % Projected Conjugate Gradient Method (Algorithm 16.5)
+    % Projected Conjugate Gradient Method (Algorithm 16.2)
 
     % INPUTS:
     % x_c - Current estimate of the solution

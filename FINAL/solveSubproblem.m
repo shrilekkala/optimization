@@ -12,7 +12,7 @@ function [x_k_plus, success] = solveSubproblem(x_k, lambda, mu, c, Q0, D0, D, a,
     % Define augmented Lagrangian and its gradient and Hessian
     L_A = @(x) augmentedLagrangian(x, lambda, mu, c, Q0, D0, D, a, gamma);
     grad_L_A = @(x) gradLagrangian(x, lambda, mu, c, Q0, D0, D, a, gamma);
-    H_L_A = @(x) computeHessian(Q0, D0, D, a, gamma, lambda, mu, x);
+    H_L_A = @(x) computeHessian(x, lambda, mu, c, Q0, D0, D, a, gamma);
 
     % Iterative process to update the current point
     for iter = 1:maxIter
